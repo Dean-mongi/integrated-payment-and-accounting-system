@@ -24,7 +24,7 @@ class ExampleTest extends TestCase
     {
         $this->seedAccounts();
 
-        foreach (['ledger', 'reconciliation', 'fees', 'currency'] as $route) {
+        foreach (['ledger', 'reconciliation', 'fees', 'currency', 'analytics', 'reports', 'settings'] as $route) {
             $this->get(route($route))->assertStatus(200);
         }
     }

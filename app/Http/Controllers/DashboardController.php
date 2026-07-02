@@ -125,6 +125,104 @@ class DashboardController extends Controller
         return view('currency', compact('rates', 'transactions', 'summary'));
     }
 
+    public function analytics()
+    {
+        $transactions = PaymentTransaction::with('invoice.customer')
+            ->latest('processed_at')
+            ->get();
+
+        $monthly = $transactions
+            ->groupBy(fn (PaymentTransaction $transaction): string => $transaction->processed_at->format('M Y'))
+            ->map(fn ($items, string $month): array => [
+                'month' => $month,
+                'gross' => (float) $items->sum('base_gross_amount'),
+                'fees' => (float) $items->sum('base_fee_amount'),
+                'net' => (float) $items->sum('base_net_amount'),
+            ])
+            ->values()
+            ->take(12);
+
+        $providerPerformance = $transactions
+            ->groupBy('provider')
+            ->map(fn ($items, string $provider): array => [
+                'provider' => $provider,
+                'count' => $items->count(),
+                'gross' => (float) $items->sum('base_gross_amount'),
+                'fees' => (float) $items->sum('base_fee_amount'),
+                'net' => (float) $items->sum('base_net_amount'),
+                'fee_rate' => (float) $items->sum('base_gross_amount') > 0
+                    ? ((float) $items->sum('base_fee_amount') / (float) $items->sum('base_gross_amount')) * 100
+                    : 0,
+            ])
+            ->sortByDesc('net')
+            ->values();
+
+        $typeMix = $transactions
+            ->groupBy('type')
+            ->map(fn ($items, string $type): array => [
+                'type' => $type,
+                'count' => $items->count(),
+                'net' => (float) $items->sum('base_net_amount'),
+            ])
+            ->values();
+
+        $summary = [
+            'transactions' => $transactions->count(),
+            'gross' => (float) $transactions->sum('base_gross_amount'),
+            'fees' => (float) $transactions->sum('base_fee_amount'),
+            'net' => (float) $transactions->sum('base_net_amount'),
+        ];
+
+        return view('analytics', compact('monthly', 'providerPerformance', 'typeMix', 'summary'));
+    }
+
+    public function reports()
+    {
+        $balances = $this->accountBalances();
+
+        $transactions = PaymentTransaction::with('invoice.customer')
+            ->latest('processed_at')
+            ->limit(20)
+            ->get();
+
+        $reconciliations = Reconciliation::with('bankDeposit')
+            ->latest()
+            ->limit(20)
+            ->get();
+
+        $reportCards = [
+            'ledger_entries' => LedgerEntry::count(),
+            'transactions' => PaymentTransaction::count(),
+            'matched_reconciliations' => Reconciliation::where('status', 'matched')->count(),
+            'discrepancies' => Reconciliation::where('status', 'discrepancy')->count(),
+        ];
+
+        return view('reports', compact('balances', 'transactions', 'reconciliations', 'reportCards'));
+    }
+
+    public function settings()
+    {
+        $accounts = Account::orderBy('code')->get();
+
+        $processors = PaymentTransaction::query()
+            ->select('provider')
+            ->selectRaw('COUNT(*) as transaction_count')
+            ->groupBy('provider')
+            ->orderBy('provider')
+            ->get();
+
+        $settings = [
+            'app_name' => config('app.name'),
+            'environment' => config('app.env'),
+            'base_currency' => LedgerService::BASE_CURRENCY,
+            'reconciliation_threshold' => (float) config('accounting.reconciliation_threshold', 0.01),
+            'mail_driver' => config('mail.default'),
+            'queue_connection' => config('queue.default'),
+        ];
+
+        return view('settings', compact('accounts', 'processors', 'settings'));
+    }
+
     private function accountBalances()
     {
         return Account::query()

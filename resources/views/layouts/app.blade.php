@@ -374,9 +374,9 @@
 
         <div class="menu-label">System</div>
         <nav>
-            <a href="{{ route('dashboard') }}"><span class="nav-icon">A</span>Analytics</a>
-            <a href="{{ route('reconciliation') }}"><span class="nav-icon">P</span>Reports</a>
-            <a href="{{ route('ledger') }}"><span class="nav-icon">S</span>Settings</a>
+            <a href="{{ route('analytics') }}" class="{{ request()->routeIs('analytics') ? 'active' : '' }}"><span class="nav-icon">A</span>Analytics</a>
+            <a href="{{ route('reports') }}" class="{{ request()->routeIs('reports') ? 'active' : '' }}"><span class="nav-icon">P</span>Reports</a>
+            <a href="{{ route('settings') }}" class="{{ request()->routeIs('settings') ? 'active' : '' }}"><span class="nav-icon">S</span>Settings</a>
             <a href="{{ route('dashboard') }}"><span class="nav-icon">H</span>Support</a>
         </nav>
 
