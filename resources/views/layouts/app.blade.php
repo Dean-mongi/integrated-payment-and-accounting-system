@@ -239,9 +239,9 @@
             width:36px;
             height:36px;
             border-radius:10px;
-            background:linear-gradient(135deg, var(--accent-2), #ff5d00);
-            color:#0b0b0c;
-            font-size:22px;
+            background:linear-gradient(135deg, var(--accent), #0f766e);
+            color:#02140b;
+            font-size:14px;
             font-weight:900;
         }
         .brand strong { display:block; font-size:15px; }
@@ -283,9 +283,9 @@
             font-weight:800;
         }
         .sidebar nav a.active {
-            background:linear-gradient(135deg, var(--accent-2), #ff5d00);
-            border-color:rgba(255,255,255,0.16);
-            color:#111827;
+            background:linear-gradient(135deg, var(--accent), #0f766e);
+            border-color:rgba(34,197,94,0.35);
+            color:#02140b;
         }
         .nav-icon {
             display:grid;
@@ -297,47 +297,6 @@
             font-size:11px;
             font-weight:900;
         }
-        .upgrade {
-            margin-top:24px;
-            padding:14px;
-            border:1px solid var(--line);
-            border-radius:10px;
-            background:rgba(255,255,255,0.05);
-        }
-        .upgrade strong { display:block; font-size:14px; margin-bottom:8px; }
-        .upgrade p { margin:0 0 12px; color:var(--muted); font-size:12px; line-height:1.45; }
-        .upgrade a {
-            display:flex;
-            justify-content:center;
-            padding:10px 12px;
-            border-radius:8px;
-            background:linear-gradient(135deg, var(--accent-2), #ff5d00);
-            color:#111827;
-            text-decoration:none;
-            font-weight:900;
-            font-size:13px;
-        }
-        .profile-strip {
-            display:flex;
-            align-items:center;
-            gap:10px;
-            margin-top:24px;
-            padding:10px;
-            border-top:1px solid var(--line);
-        }
-        .avatar {
-            display:grid;
-            place-items:center;
-            flex:0 0 auto;
-            width:38px;
-            height:38px;
-            border-radius:50%;
-            background:linear-gradient(135deg, #f8fafc, #a8b0bd);
-            color:#111827;
-            font-weight:900;
-        }
-        .profile-strip strong { display:block; font-size:13px; }
-        .profile-strip span { display:block; color:var(--muted); font-size:11px; margin-top:2px; }
         .app-main {
             min-width:0;
             padding:18px clamp(16px, 3vw, 34px) 44px;
@@ -384,7 +343,6 @@
                 border-bottom:1px solid var(--line);
             }
             .sidebar nav { grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); }
-            .upgrade, .profile-strip { display:none; }
             .topbar { flex-direction:column; }
         }
     </style>
@@ -393,10 +351,10 @@
 <div class="app-shell">
     <aside class="sidebar" aria-label="Primary navigation">
         <div class="brand">
-            <div class="brand-mark">F</div>
+            <div class="brand-mark">IP</div>
             <div>
-                <strong>FlowBoard</strong>
-                <span>Smart Finance</span>
+                <strong>Integrated Payment</strong>
+                <span>Accounting System</span>
             </div>
         </div>
 
@@ -422,26 +380,12 @@
             <a href="{{ route('dashboard') }}"><span class="nav-icon">H</span>Support</a>
         </nav>
 
-        <div class="upgrade">
-            <strong>Upgrade to Pro</strong>
-            <p>Unlock advanced finance workflows, richer reporting, and faster reconciliation review.</p>
-            <a href="{{ route('dashboard') }}">Upgrade Now</a>
-        </div>
-
-        <div class="profile-strip">
-            <div class="avatar">A</div>
-            <div>
-                <strong>Arthur Taylor</strong>
-                <span>finance@flowboard.test</span>
-            </div>
-        </div>
     </aside>
 
     <main class="app-main">
         <div class="topbar">
             <div>
-                <p class="eyebrow">Good morning, Arthur</p>
-                <h1>Here's what's happening with your business today.</h1>
+                <h1>Integrated Payment and Accounting System</h1>
             </div>
             <div class="top-actions">
                 <span class="date-chip">{{ now()->format('M j, Y') }}</span>
