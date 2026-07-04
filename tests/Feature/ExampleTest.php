@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\LedgerEntry;
 use App\Models\PaymentTransaction;
 use App\Models\Reconciliation;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,7 +16,7 @@ class ExampleTest extends TestCase
 
     public function test_the_application_returns_a_successful_response(): void
     {
-        $response = $this->get('/');
+        $response = $this->actingAs($this->adminUser())->get('/');
 
         $response->assertStatus(200);
     }
@@ -23,8 +24,9 @@ class ExampleTest extends TestCase
     public function test_process_pages_return_successful_responses(): void
     {
         $this->seedAccounts();
+        $this->actingAs($this->adminUser());
 
-        foreach (['ledger', 'reconciliation', 'fees', 'currency', 'analytics', 'reports', 'settings'] as $route) {
+        foreach (['ledger', 'reconciliation', 'fees', 'currency', 'analytics', 'reports', 'settings', 'invoices.index', 'invoices.create'] as $route) {
             $this->get(route($route))->assertStatus(200);
         }
     }
@@ -32,6 +34,7 @@ class ExampleTest extends TestCase
     public function test_sale_transaction_posts_balanced_ledger_entries(): void
     {
         $this->seedAccounts();
+        $this->actingAs($this->adminUser());
 
         $response = $this->post(route('transactions.store'), [
             'type' => 'sale',
@@ -69,6 +72,7 @@ class ExampleTest extends TestCase
     public function test_deposit_reconciliation_matches_posted_net_total(): void
     {
         $this->seedAccounts();
+        $this->actingAs($this->adminUser());
 
         $this->post(route('transactions.store'), [
             'type' => 'sale',
@@ -99,6 +103,53 @@ class ExampleTest extends TestCase
         ]);
 
         $this->assertSame('matched', Reconciliation::firstOrFail()->status);
+    }
+
+    public function test_invoice_payment_generates_receipt_and_ledger_entries(): void
+    {
+        $this->seedAccounts();
+        $this->actingAs($this->adminUser());
+
+        $invoiceResponse = $this->post(route('invoices.store'), [
+            'customer_name' => 'Acme Stores',
+            'customer_email' => 'customer@example.com',
+            'currency' => 'USD',
+            'due_date' => now()->addDays(7)->toDateString(),
+            'description' => ['Consulting service'],
+            'quantity' => ['1'],
+            'unit_price' => ['100.00'],
+        ]);
+
+        $invoiceResponse->assertRedirect();
+        $this->assertDatabaseHas('invoices', ['customer_id' => 1, 'status' => 'unpaid', 'total' => 100.00]);
+
+        $invoice = \App\Models\Invoice::firstOrFail();
+
+        $paymentResponse = $this->post(route('invoice-payments.store', $invoice), [
+            'payment_method' => 'card',
+            'provider' => 'Stripe',
+            'provider_reference' => 'PAY-1001',
+            'amount' => '100.00',
+            'fee_amount' => '3.00',
+            'currency' => 'USD',
+            'exchange_rate' => '1',
+        ]);
+
+        $paymentResponse->assertRedirect(route('invoices.show', $invoice));
+
+        $this->assertDatabaseHas('invoices', ['id' => $invoice->id, 'status' => 'paid', 'paid_amount' => 100.00]);
+        $this->assertDatabaseHas('receipts', ['invoice_id' => $invoice->id, 'amount' => 100.00]);
+        $this->assertDatabaseHas('payment_transactions', ['provider_reference' => 'PAY-1001', 'fee_amount' => 3.00]);
+    }
+
+    private function adminUser(): User
+    {
+        return User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'role' => 'admin',
+            'password' => 'password',
+        ]);
     }
 
     private function seedAccounts(): void

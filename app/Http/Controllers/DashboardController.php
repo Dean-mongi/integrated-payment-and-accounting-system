@@ -8,8 +8,12 @@ use App\Models\FxRate;
 use App\Models\LedgerEntry;
 use App\Models\PaymentTransaction;
 use App\Models\Reconciliation;
+use App\Models\AuditLog;
+use App\Models\SystemNotification;
 use App\Services\LedgerService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -220,7 +224,39 @@ class DashboardController extends Controller
             'queue_connection' => config('queue.default'),
         ];
 
-        return view('settings', compact('accounts', 'processors', 'settings'));
+        $notifications = SystemNotification::latest()->limit(10)->get();
+        $auditLogs = AuditLog::with('user')->latest()->limit(10)->get();
+
+        return view('settings', compact('accounts', 'processors', 'settings', 'notifications', 'auditLogs'));
+    }
+
+    public function backup(Request $request)
+    {
+        $payload = [
+            'generated_at' => now()->toIso8601String(),
+            'accounts' => Account::orderBy('code')->get(),
+            'invoices' => \App\Models\Invoice::with(['customer', 'items', 'receipts'])->get(),
+            'transactions' => PaymentTransaction::with('ledgerEntries')->get(),
+            'reconciliations' => Reconciliation::with('bankDeposit')->get(),
+        ];
+
+        $path = 'backups/finance-backup-'.now()->format('Ymd-His').'.json';
+        Storage::disk('local')->put($path, json_encode($payload, JSON_PRETTY_PRINT));
+
+        SystemNotification::create([
+            'type' => 'backup_completed',
+            'title' => 'Backup completed',
+            'message' => 'Finance backup saved to storage/app/'.$path.'.',
+        ]);
+
+        AuditLog::create([
+            'user_id' => $request->user()->id,
+            'event' => 'backup.created',
+            'metadata' => ['path' => $path],
+            'ip_address' => $request->ip(),
+        ]);
+
+        return redirect()->route('settings')->with('status', 'Backup created at storage/app/'.$path.'.');
     }
 
     private function accountBalances()

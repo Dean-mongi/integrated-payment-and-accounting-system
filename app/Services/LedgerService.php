@@ -9,6 +9,8 @@ use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\FxRate;
 use App\Models\PaymentTransaction;
+use App\Models\Receipt;
+use App\Models\SystemNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -84,6 +86,81 @@ final class LedgerService
             ]);
 
             $this->postLedger($transaction);
+
+            return $transaction;
+        });
+    }
+
+    /**
+     * Receive a payment against an existing invoice and post its ledger entries.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function recordInvoicePayment(Invoice $invoice, array $data): PaymentTransaction
+    {
+        return DB::transaction(function () use ($invoice, $data): PaymentTransaction {
+            $processedAt = now();
+            $currency = strtoupper((string) $data['currency']);
+            $rate = (float) $data['exchange_rate'];
+            $gross = (float) $data['amount'];
+            $fee = (float) ($data['fee_amount'] ?? 0);
+            $net = round($gross - $fee, 2);
+
+            FxRate::firstOrCreate([
+                'from_currency' => $currency,
+                'to_currency' => self::BASE_CURRENCY,
+                'rate' => $rate,
+                'quoted_at' => $processedAt,
+            ]);
+
+            $transaction = PaymentTransaction::create([
+                'invoice_id' => $invoice->id,
+                'provider' => $data['provider'],
+                'provider_reference' => $data['provider_reference'] ?: 'PAY-'.Str::upper(Str::random(10)),
+                'type' => 'sale',
+                'gross_amount' => $gross,
+                'fee_amount' => $fee,
+                'net_amount' => $net,
+                'currency' => $currency,
+                'base_currency' => self::BASE_CURRENCY,
+                'exchange_rate' => $rate,
+                'base_gross_amount' => round($gross * $rate, 2),
+                'base_fee_amount' => round($fee * $rate, 2),
+                'base_net_amount' => round($net * $rate, 2),
+                'status' => 'posted',
+                'processed_at' => $processedAt,
+            ]);
+
+            $this->postLedger($transaction);
+
+            $paidAmount = round((float) $invoice->paid_amount + $gross, 2);
+            $status = match (true) {
+                $paidAmount >= (float) $invoice->total => 'paid',
+                $paidAmount > 0 => 'partially_paid',
+                default => 'unpaid',
+            };
+
+            $invoice->update([
+                'paid_amount' => $paidAmount,
+                'status' => $status,
+                'paid_at' => $status === 'paid' ? $processedAt : null,
+            ]);
+
+            Receipt::create([
+                'invoice_id' => $invoice->id,
+                'payment_transaction_id' => $transaction->id,
+                'receipt_no' => 'RCT-'.$processedAt->format('YmdHis').'-'.Str::upper(Str::random(4)),
+                'amount' => $gross,
+                'currency' => $currency,
+                'payment_method' => $data['payment_method'],
+                'issued_at' => $processedAt,
+            ]);
+
+            SystemNotification::create([
+                'type' => 'successful_payment',
+                'title' => 'Payment confirmed',
+                'message' => 'Invoice '.$invoice->invoice_no.' received '.$currency.' '.number_format($gross, 2).'.',
+            ]);
 
             return $transaction;
         });

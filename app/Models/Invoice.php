@@ -15,10 +15,12 @@ class Invoice extends Model
         'subtotal',
         'tax',
         'total',
+        'paid_amount',
         'currency',
         'status',
         'due_date',
         'paid_at',
+        'notes',
     ];
 
 
@@ -40,5 +42,14 @@ class Invoice extends Model
     {
         return $this->hasMany(InvoicePayment::class);
     }
-}
 
+    public function items(): HasMany
+    {
+        return $this->hasMany(InvoiceItem::class);
+    }
+
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class);
+    }
+}

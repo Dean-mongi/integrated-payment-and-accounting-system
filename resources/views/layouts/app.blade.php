@@ -146,6 +146,7 @@
         }
 
         form { display:grid; gap:12px; }
+        .inline-form { display:inline; }
         .field { display:grid; gap:6px; }
         label { font-size:13px; color:#d4d9e2; font-weight:800; }
 
@@ -365,19 +366,30 @@
 
         <div class="menu-label">Main menu</div>
         <nav>
-            <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><span class="nav-icon">D</span>Dashboard</a>
-            <a href="{{ route('ledger') }}" class="{{ request()->routeIs('ledger') ? 'active' : '' }}"><span class="nav-icon">L</span>Ledger</a>
-            <a href="{{ route('reconciliation') }}" class="{{ request()->routeIs('reconciliation') ? 'active' : '' }}"><span class="nav-icon">R</span>Reconciliation</a>
-            <a href="{{ route('fees') }}" class="{{ request()->routeIs('fees') ? 'active' : '' }}"><span class="nav-icon">F</span>Fees</a>
-            <a href="{{ route('currency') }}" class="{{ request()->routeIs('currency') ? 'active' : '' }}"><span class="nav-icon">X</span>Currency</a>
+            @if (in_array(auth()->user()->role, ['admin', 'accountant'], true))
+                <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><span class="nav-icon">D</span>Dashboard</a>
+                <a href="{{ route('ledger') }}" class="{{ request()->routeIs('ledger') ? 'active' : '' }}"><span class="nav-icon">L</span>Ledger</a>
+                <a href="{{ route('reconciliation') }}" class="{{ request()->routeIs('reconciliation') ? 'active' : '' }}"><span class="nav-icon">R</span>Reconciliation</a>
+                <a href="{{ route('fees') }}" class="{{ request()->routeIs('fees') ? 'active' : '' }}"><span class="nav-icon">F</span>Fees</a>
+                <a href="{{ route('currency') }}" class="{{ request()->routeIs('currency') ? 'active' : '' }}"><span class="nav-icon">X</span>Currency</a>
+            @endif
+            <a href="{{ route('invoices.index') }}" class="{{ request()->routeIs('invoices.*') || request()->routeIs('receipts.*') ? 'active' : '' }}"><span class="nav-icon">I</span>Invoices</a>
         </nav>
 
         <div class="menu-label">System</div>
         <nav>
-            <a href="{{ route('analytics') }}" class="{{ request()->routeIs('analytics') ? 'active' : '' }}"><span class="nav-icon">A</span>Analytics</a>
-            <a href="{{ route('reports') }}" class="{{ request()->routeIs('reports') ? 'active' : '' }}"><span class="nav-icon">P</span>Reports</a>
-            <a href="{{ route('settings') }}" class="{{ request()->routeIs('settings') ? 'active' : '' }}"><span class="nav-icon">S</span>Settings</a>
-            <a href="{{ route('dashboard') }}"><span class="nav-icon">H</span>Support</a>
+            @if (in_array(auth()->user()->role, ['admin', 'accountant'], true))
+                <a href="{{ route('analytics') }}" class="{{ request()->routeIs('analytics') ? 'active' : '' }}"><span class="nav-icon">A</span>Analytics</a>
+                <a href="{{ route('reports') }}" class="{{ request()->routeIs('reports') ? 'active' : '' }}"><span class="nav-icon">P</span>Reports</a>
+            @endif
+            @if (auth()->user()->role === 'admin')
+                <a href="{{ route('settings') }}" class="{{ request()->routeIs('settings') ? 'active' : '' }}"><span class="nav-icon">S</span>Settings</a>
+            @endif
+            <a href="{{ route('invoices.index') }}"><span class="nav-icon">H</span>Support</a>
+            <form class="inline-form" method="post" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" style="width:100%;background:rgba(0,0,0,0.35);color:#d7dce4;text-align:left;">Logout</button>
+            </form>
         </nav>
 
     </aside>
@@ -388,8 +400,9 @@
                 <h1>Integrated Payment and Accounting System</h1>
             </div>
             <div class="top-actions">
+                <span class="date-chip">{{ ucfirst(auth()->user()->role) }}</span>
                 <span class="date-chip">{{ now()->format('M j, Y') }}</span>
-                <span class="notify-chip">3</span>
+                <span class="notify-chip">{{ \App\Models\SystemNotification::whereNull('read_at')->count() }}</span>
             </div>
         </div>
 

@@ -61,9 +61,53 @@
                         <tr><td>Mail driver</td><td>{{ $settings['mail_driver'] }}</td></tr>
                         <tr><td>Queue connection</td><td>{{ $settings['queue_connection'] }}</td></tr>
                         <tr><td>Background assets</td><td>{{ file_exists(public_path('images/colour-palette.jpeg')) ? 'Ready' : 'Missing' }}</td></tr>
+                        <tr><td>Payment data protection</td><td>Card details are not stored</td></tr>
+                        <tr><td>Backup storage</td><td>storage/app/backups</td></tr>
                     </tbody>
                 </table>
+                <form method="post" action="{{ route('settings.backup') }}" style="margin-top:12px;">
+                    @csrf
+                    <button type="submit">Create backup now</button>
+                </form>
             </div>
+        </section>
+    </div>
+
+    <div class="grid two" style="margin-top:16px;">
+        <section class="panel">
+            <h2>Notifications</h2>
+            <table>
+                <thead><tr><th>Type</th><th>Message</th><th>Created</th></tr></thead>
+                <tbody>
+                    @forelse ($notifications as $notification)
+                        <tr>
+                            <td>{{ str_replace('_', ' ', $notification->type) }}</td>
+                            <td><strong>{{ $notification->title }}</strong><div class="tiny">{{ $notification->message }}</div></td>
+                            <td>{{ $notification->created_at->format('M j, Y H:i') }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="3">No notifications yet.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </section>
+
+        <section class="panel">
+            <h2>Security Audit Logs</h2>
+            <table>
+                <thead><tr><th>Event</th><th>User</th><th>Time</th></tr></thead>
+                <tbody>
+                    @forelse ($auditLogs as $log)
+                        <tr>
+                            <td>{{ $log->event }}</td>
+                            <td>{{ $log->user?->email ?? 'System' }}</td>
+                            <td>{{ $log->created_at->format('M j, Y H:i') }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="3">No audit events yet.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </section>
     </div>
 @endsection
