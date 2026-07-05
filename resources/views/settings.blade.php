@@ -13,10 +13,27 @@
     </div>
 
     <section class="cards" aria-label="System settings">
-        <div class="card"><div class="label">Application</div><div class="value" style="font-size:18px;">{{ $settings['app_name'] }}</div></div>
+        <div class="card"><div class="label">Business</div><div class="value" style="font-size:18px;">{{ $business?->name ?? 'MaliHub' }}</div><div class="tiny">{{ $business?->tagline ?? 'Your Financial Hub. Grow Better.' }}</div></div>
         <div class="card"><div class="label">Environment</div><div class="value">{{ $settings['environment'] }}</div></div>
         <div class="card"><div class="label">Base Currency</div><div class="value">{{ $settings['base_currency'] }}</div></div>
         <div class="card"><div class="label">Recon Threshold</div><div class="value money">${{ number_format($settings['reconciliation_threshold'], 2) }}</div></div>
+    </section>
+
+    <section class="panel" style="margin-top:16px;">
+        <h2>Company Profile</h2>
+        <div style="display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;">
+            <img src="{{ asset('images/malihub-logo.svg') }}" alt="MaliHub logo" style="width:96px;height:96px;object-fit:contain;background:#fff;border-radius:8px;">
+            <table>
+                <tbody>
+                    <tr><td>Name</td><td>{{ $business?->name ?? 'MaliHub' }}</td></tr>
+                    <tr><td>Email</td><td>{{ $business?->email ?? 'finance@malihub.local' }}</td></tr>
+                    <tr><td>Phone</td><td>{{ $business?->phone ?? 'Not set' }}</td></tr>
+                    <tr><td>Tax number</td><td>{{ $business?->tax_number ?? 'Not set' }}</td></tr>
+                    <tr><td>Subscription</td><td>Business finance workspace</td></tr>
+                    <tr><td>Integrations</td><td>Mobile money, bank, cash, email, WhatsApp, PDF print</td></tr>
+                </tbody>
+            </table>
+        </div>
     </section>
 
     <div class="grid two" style="margin-top:16px;">

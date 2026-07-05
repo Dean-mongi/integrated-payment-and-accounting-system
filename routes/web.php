@@ -9,8 +9,12 @@ use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
+    Route::get('/welcome', [AuthController::class, 'welcome'])->name('welcome');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
+    Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
 });
 
 Route::middleware('auth')->group(function () {
@@ -21,6 +25,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports')->middleware('role:admin,accountant');
     Route::get('/settings', [DashboardController::class, 'settings'])->name('settings')->middleware('role:admin');
     Route::post('/settings/backup', [DashboardController::class, 'backup'])->name('settings.backup')->middleware('role:admin');
+    Route::get('/customers', [DashboardController::class, 'customers'])->name('customers.index')->middleware('role:admin,accountant,cashier');
+    Route::get('/suppliers', [DashboardController::class, 'suppliers'])->name('suppliers.index')->middleware('role:admin,accountant');
+    Route::get('/products', [DashboardController::class, 'products'])->name('products.index')->middleware('role:admin,accountant,cashier');
+    Route::get('/expenses', [DashboardController::class, 'expenses'])->name('expenses.index')->middleware('role:admin,accountant,cashier');
+    Route::get('/accounting', [DashboardController::class, 'accounting'])->name('accounting.index')->middleware('role:admin,accountant');
 
     Route::get('/ledger', [DashboardController::class, 'ledger'])->name('ledger')->middleware('role:admin,accountant');
     Route::get('/reconciliation', [DashboardController::class, 'reconciliation'])->name('reconciliation')->middleware('role:admin,accountant');

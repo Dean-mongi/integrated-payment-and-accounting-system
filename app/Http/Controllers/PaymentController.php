@@ -20,7 +20,7 @@ class PaymentController extends Controller
         );
 
         $data = $request->validate([
-            'payment_method' => ['required', 'in:card,mobile_money,bank_transfer,paypal,stripe'],
+            'payment_method' => ['required', 'in:card,mobile_money,bank_transfer,cash,paypal,stripe'],
             'provider' => ['required', 'string', 'max:50'],
             'provider_reference' => ['nullable', 'string', 'max:100', 'unique:payment_transactions,provider_reference'],
             'amount' => ['required', 'numeric', 'min:0.01'],

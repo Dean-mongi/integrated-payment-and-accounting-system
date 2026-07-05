@@ -3,14 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
     public function showLogin()
     {
         return view('auth.login');
+    }
+
+    public function welcome()
+    {
+        return view('welcome');
+    }
+
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
+    public function register(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role' => 'customer',
+            'password' => Hash::make($data['password']),
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        AuditLog::create([
+            'user_id' => $user->id,
+            'event' => 'register',
+            'ip_address' => $request->ip(),
+        ]);
+
+        return redirect()->route('invoices.index')->with('status', 'Welcome to MaliHub.');
+    }
+
+    public function forgotPassword()
+    {
+        return view('auth.forgot-password');
     }
 
     public function login(Request $request)

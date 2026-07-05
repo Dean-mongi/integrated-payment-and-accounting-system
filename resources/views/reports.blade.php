@@ -13,10 +13,10 @@
     </div>
 
     <section class="cards" aria-label="Report summary">
-        <div class="card"><div class="label">Ledger Entries</div><div class="value">{{ $reportCards['ledger_entries'] }}</div></div>
-        <div class="card"><div class="label">Transactions</div><div class="value">{{ $reportCards['transactions'] }}</div></div>
-        <div class="card"><div class="label">Matched Reports</div><div class="value">{{ $reportCards['matched_reconciliations'] }}</div></div>
-        <div class="card"><div class="label">Discrepancies</div><div class="value">{{ $reportCards['discrepancies'] }}</div></div>
+        <div class="card"><div class="label">Sales</div><div class="value money">${{ number_format($reportCards['sales'], 2) }}</div></div>
+        <div class="card"><div class="label">Purchases</div><div class="value money">${{ number_format($reportCards['purchases'], 2) }}</div></div>
+        <div class="card"><div class="label">VAT / Tax</div><div class="value money">${{ number_format($reportCards['vat_tax'], 2) }}</div></div>
+        <div class="card"><div class="label">Monthly Rows</div><div class="value">{{ $reportCards['transactions'] }}</div></div>
     </section>
 
     <div class="grid two" style="margin-top:16px;">

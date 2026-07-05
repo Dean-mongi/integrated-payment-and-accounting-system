@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 280" role="img" aria-labelledby="title desc">
+  <title id="title">MaliHub</title>
+  <desc id="desc">Financial growth mark with bars and circular motion.</desc>
+  <defs>
+    <linearGradient id="green" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#6fd21f"/>
+      <stop offset="1" stop-color="#00442b"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#22b8f2"/>
+      <stop offset="1" stop-color="#0067a6"/>
+    </linearGradient>
+  </defs>
+  <rect width="360" height="280" rx="20" fill="#fff"/>
+  <path d="M247 47c-72-26-150 15-173 88-4 13-5 27-4 41 13-65 79-105 144-89 13 3 24 8 33 14-39-42-104-45-147-7 34-49 96-70 147-47z" fill="url(#green)"/>
+  <path d="M264 102c40 29 42 88 4 119-43 36-114 30-157-9 46 20 100 12 131-19 24-23 30-58 22-91z" fill="#00442b"/>
+  <path d="M68 183c31 64 118 88 185 49-67 15-133-12-165-63-7 4-14 8-20 14z" fill="url(#green)"/>
+  <rect x="105" y="124" width="28" height="58" rx="4" fill="url(#blue)"/>
+  <rect x="151" y="98" width="28" height="84" rx="4" fill="url(#green)"/>
+  <rect x="198" y="68" width="31" height="114" rx="4" fill="#006b2e"/>
+  <circle cx="160" cy="181" r="17" fill="#61bf20"/>
+  <text x="180" y="238" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="800">
+    <tspan fill="#00442b">Mali</tspan><tspan fill="#55bf1a">Hub</tspan>
+  </text>
+  <rect x="159" y="249" width="42" height="3" rx="2" fill="#55bf1a"/>
+  <text x="180" y="266" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#00442b">Your Financial Hub. Grow Better.</text>
+</svg>

@@ -13,8 +13,8 @@
             --paper:#030507;
             --panel:rgba(8, 10, 14, 0.84);
             --panel-strong:rgba(0, 0, 0, 0.92);
-            --accent:#22c55e;
-            --accent-2:#f59e0b;
+            --accent:#55bf1a;
+            --accent-2:#0ea5e9;
             --danger:#f87171;
             --success:#34d399;
             --shadow: 0 20px 50px rgba(0, 0, 0, 0.46);
@@ -234,6 +234,13 @@
             gap:10px;
             padding:0 10px 20px;
         }
+        .brand-logo {
+            width:44px;
+            height:44px;
+            object-fit:contain;
+            border-radius:8px;
+            background:#fff;
+        }
         .brand-mark {
             display:grid;
             place-items:center;
@@ -245,7 +252,7 @@
             font-size:14px;
             font-weight:900;
         }
-        .brand strong { display:block; font-size:15px; }
+        .brand strong { display:block; font-size:20px; line-height:1; }
         .brand span { display:block; color:var(--muted); font-size:12px; margin-top:2px; }
         .search-box {
             display:flex;
@@ -302,6 +309,12 @@
             min-width:0;
             padding:18px clamp(16px, 3vw, 34px) 44px;
         }
+        .table-scroll {
+            width:100%;
+            overflow-x:auto;
+            -webkit-overflow-scrolling:touch;
+        }
+        .table-scroll table { min-width:680px; }
         .topbar {
             display:flex;
             justify-content:space-between;
@@ -346,16 +359,26 @@
             .sidebar nav { grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); }
             .topbar { flex-direction:column; }
         }
+        @media (max-width: 560px) {
+            .app-main { padding:16px 12px 36px; }
+            .sidebar { padding:14px 10px; }
+            .sidebar nav { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+            .sidebar nav a { padding:10px; font-size:12px; }
+            .top-actions { width:100%; }
+            .date-chip { flex:1; justify-content:center; }
+            .value { font-size:22px; }
+            th, td { padding:9px 7px; }
+        }
     </style>
 </head>
 <body>
 <div class="app-shell">
     <aside class="sidebar" aria-label="Primary navigation">
         <div class="brand">
-            <div class="brand-mark">IP</div>
+            <img class="brand-logo" src="{{ asset('images/malihub-logo.svg') }}" alt="MaliHub logo">
             <div>
-                <strong>Integrated Payment</strong>
-                <span>Accounting System</span>
+                <strong>MaliHub</strong>
+                <span>Your Financial Hub. Grow Better.</span>
             </div>
         </div>
 
@@ -368,6 +391,11 @@
         <nav>
             @if (in_array(auth()->user()->role, ['admin', 'accountant'], true))
                 <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><span class="nav-icon">D</span>Dashboard</a>
+                <a href="{{ route('customers.index') }}" class="{{ request()->routeIs('customers.*') ? 'active' : '' }}"><span class="nav-icon">C</span>Customers</a>
+                <a href="{{ route('suppliers.index') }}" class="{{ request()->routeIs('suppliers.*') ? 'active' : '' }}"><span class="nav-icon">S</span>Suppliers</a>
+                <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}"><span class="nav-icon">P</span>Products</a>
+                <a href="{{ route('expenses.index') }}" class="{{ request()->routeIs('expenses.*') ? 'active' : '' }}"><span class="nav-icon">E</span>Expenses</a>
+                <a href="{{ route('accounting.index') }}" class="{{ request()->routeIs('accounting.*') ? 'active' : '' }}"><span class="nav-icon">G</span>Accounting</a>
                 <a href="{{ route('ledger') }}" class="{{ request()->routeIs('ledger') ? 'active' : '' }}"><span class="nav-icon">L</span>Ledger</a>
                 <a href="{{ route('reconciliation') }}" class="{{ request()->routeIs('reconciliation') ? 'active' : '' }}"><span class="nav-icon">R</span>Reconciliation</a>
                 <a href="{{ route('fees') }}" class="{{ request()->routeIs('fees') ? 'active' : '' }}"><span class="nav-icon">F</span>Fees</a>
@@ -380,7 +408,7 @@
         <nav>
             @if (in_array(auth()->user()->role, ['admin', 'accountant'], true))
                 <a href="{{ route('analytics') }}" class="{{ request()->routeIs('analytics') ? 'active' : '' }}"><span class="nav-icon">A</span>Analytics</a>
-                <a href="{{ route('reports') }}" class="{{ request()->routeIs('reports') ? 'active' : '' }}"><span class="nav-icon">P</span>Reports</a>
+                <a href="{{ route('reports') }}" class="{{ request()->routeIs('reports') ? 'active' : '' }}"><span class="nav-icon">T</span>Reports</a>
             @endif
             @if (auth()->user()->role === 'admin')
                 <a href="{{ route('settings') }}" class="{{ request()->routeIs('settings') ? 'active' : '' }}"><span class="nav-icon">S</span>Settings</a>
@@ -397,6 +425,7 @@
     <main class="app-main">
         <div class="topbar">
             <div>
+                <p class="eyebrow">MaliHub</p>
                 <h1>Integrated Payment and Accounting System</h1>
             </div>
             <div class="top-actions">

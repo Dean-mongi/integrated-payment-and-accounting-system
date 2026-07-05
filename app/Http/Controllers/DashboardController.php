@@ -4,11 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\BankDeposit;
+use App\Models\Business;
+use App\Models\Customer;
+use App\Models\Expense;
 use App\Models\FxRate;
+use App\Models\Invoice;
 use App\Models\LedgerEntry;
 use App\Models\PaymentTransaction;
+use App\Models\Product;
 use App\Models\Reconciliation;
 use App\Models\AuditLog;
+use App\Models\Supplier;
 use App\Models\SystemNotification;
 use App\Services\LedgerService;
 use Illuminate\Http\Request;
@@ -30,6 +36,9 @@ class DashboardController extends Controller
             'gross' => PaymentTransaction::sum('base_gross_amount'),
             'fees' => PaymentTransaction::sum('base_fee_amount'),
             'net' => PaymentTransaction::sum('base_net_amount'),
+            'expenses' => Expense::sum('amount'),
+            'outstanding_invoices' => Invoice::whereIn('status', ['unpaid', 'partially_paid', 'overdue'])->sum(DB::raw('total - paid_amount')),
+            'customers' => Customer::count(),
             'discrepancies' => Reconciliation::where('status', 'discrepancy')->count(),
             'unreconciled_deposits' => BankDeposit::doesntHave('reconciliation')->count(),
         ];
@@ -46,6 +55,95 @@ class DashboardController extends Controller
             ->get();
 
         return view('dashboard', compact('transactions', 'reconciliations', 'summary', 'balances', 'daily'));
+    }
+
+    public function customers()
+    {
+        $customers = Customer::withCount('invoices')
+            ->withSum('invoices as invoice_total', 'total')
+            ->withSum('invoices as paid_total', 'paid_amount')
+            ->orderBy('name')
+            ->paginate(12);
+
+        $summary = [
+            'customers' => Customer::count(),
+            'invoice_total' => Invoice::sum('total'),
+            'paid_total' => Invoice::sum('paid_amount'),
+            'outstanding' => Invoice::sum(DB::raw('total - paid_amount')),
+        ];
+
+        return view('customers.index', compact('customers', 'summary'));
+    }
+
+    public function suppliers()
+    {
+        $suppliers = Supplier::orderBy('name')->paginate(12);
+
+        $summary = [
+            'suppliers' => Supplier::count(),
+            'active' => Supplier::where('status', 'active')->count(),
+            'balance' => Supplier::sum('balance'),
+            'expense_total' => Expense::sum('amount'),
+        ];
+
+        return view('suppliers.index', compact('suppliers', 'summary'));
+    }
+
+    public function products()
+    {
+        $products = Product::orderBy('name')->paginate(12);
+
+        $summary = [
+            'products' => Product::count(),
+            'active' => Product::where('status', 'active')->count(),
+            'stock' => Product::sum('stock_quantity'),
+            'inventory_value' => Product::selectRaw('SUM(unit_price * stock_quantity) as value')->value('value') ?? 0,
+        ];
+
+        return view('products.index', compact('products', 'summary'));
+    }
+
+    public function expenses()
+    {
+        $expenses = Expense::with('supplier')->latest('spent_at')->paginate(12);
+
+        $byCategory = Expense::query()
+            ->select('category')
+            ->selectRaw('SUM(amount) as total')
+            ->groupBy('category')
+            ->orderByDesc('total')
+            ->get();
+
+        $summary = [
+            'total' => Expense::sum('amount'),
+            'monthly' => Expense::where('spent_at', '>=', now()->startOfMonth())->sum('amount'),
+            'receipts' => Expense::whereNotNull('receipt_path')->count(),
+            'categories' => Expense::distinct('category')->count('category'),
+        ];
+
+        return view('expenses.index', compact('expenses', 'byCategory', 'summary'));
+    }
+
+    public function accounting()
+    {
+        $balances = $this->accountBalances();
+        $revenue = PaymentTransaction::sum('base_gross_amount');
+        $paymentFees = PaymentTransaction::sum('base_fee_amount');
+        $operatingExpenses = Expense::sum('amount');
+        $expenses = $paymentFees + $operatingExpenses;
+
+        $statements = [
+            'revenue' => $revenue,
+            'expenses' => $expenses,
+            'profit' => $revenue - $expenses,
+            'assets' => (float) $balances->where('type', 'asset')->sum('balance'),
+            'liabilities' => abs((float) $balances->where('type', 'liability')->sum('balance')),
+            'equity' => (float) $balances->whereIn('type', ['equity', 'income_statement', 'revenue'])->sum('balance'),
+            'cash_in' => PaymentTransaction::sum('base_net_amount'),
+            'cash_out' => $operatingExpenses,
+        ];
+
+        return view('accounting.index', compact('balances', 'statements'));
     }
 
     public function ledger()
@@ -197,6 +295,9 @@ class DashboardController extends Controller
         $reportCards = [
             'ledger_entries' => LedgerEntry::count(),
             'transactions' => PaymentTransaction::count(),
+            'sales' => Invoice::sum('total'),
+            'purchases' => Expense::sum('amount'),
+            'vat_tax' => Invoice::sum('tax'),
             'matched_reconciliations' => Reconciliation::where('status', 'matched')->count(),
             'discrepancies' => Reconciliation::where('status', 'discrepancy')->count(),
         ];
@@ -206,6 +307,7 @@ class DashboardController extends Controller
 
     public function settings()
     {
+        $business = Business::first();
         $accounts = Account::orderBy('code')->get();
 
         $processors = PaymentTransaction::query()
@@ -227,7 +329,7 @@ class DashboardController extends Controller
         $notifications = SystemNotification::latest()->limit(10)->get();
         $auditLogs = AuditLog::with('user')->latest()->limit(10)->get();
 
-        return view('settings', compact('accounts', 'processors', 'settings', 'notifications', 'auditLogs'));
+        return view('settings', compact('business', 'accounts', 'processors', 'settings', 'notifications', 'auditLogs'));
     }
 
     public function backup(Request $request)

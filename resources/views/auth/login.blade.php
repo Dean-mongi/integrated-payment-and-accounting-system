@@ -14,6 +14,14 @@
             background:linear-gradient(180deg, rgba(0,0,0,.76), rgba(0,0,0,.9)), url("{{ asset('images/colour-palette.jpeg') }}") center / cover fixed no-repeat;
             color:#f6f7f9;
         }
+        .auth-wrap {
+            width:min(920px, calc(100vw - 32px));
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:18px;
+            align-items:stretch;
+        }
+        .brand-panel,
         .login-card {
             width:min(420px, calc(100vw - 32px));
             padding:26px;
@@ -22,6 +30,8 @@
             background:rgba(0,0,0,.78);
             box-shadow:0 22px 60px rgba(0,0,0,.48);
         }
+        .brand-panel { display:grid; align-content:center; justify-items:center; text-align:center; background:rgba(255,255,255,.94); color:#073b24; }
+        .brand-panel img { width:100%; max-width:320px; }
         h1 { margin:0 0 6px; font-size:24px; }
         p { margin:0 0 22px; color:#a8b0bd; }
         form { display:grid; gap:14px; }
@@ -46,12 +56,24 @@
         }
         .error { margin-bottom:14px; color:#fecaca; font-weight:800; }
         .hint { margin-top:18px; color:#a8b0bd; font-size:12px; line-height:1.5; }
+        .auth-links { display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; }
+        a { color:#86efac; font-weight:800; text-decoration:none; font-size:13px; }
+        @media (max-width: 860px) {
+            body { padding:16px 0; }
+            .auth-wrap { grid-template-columns:1fr; justify-items:center; }
+            .brand-panel { display:none; }
+        }
     </style>
 </head>
 <body>
+    <main class="auth-wrap">
+        <section class="brand-panel" aria-label="MaliHub brand">
+            <img src="{{ asset('images/malihub-logo.svg') }}" alt="MaliHub logo">
+        </section>
+
     <section class="login-card">
-        <h1>Integrated Payment and Accounting System</h1>
-        <p>Secure role-based access for finance workflows.</p>
+        <h1>MaliHub</h1>
+        <p>Your Financial Hub. Grow Better.</p>
 
         @if ($errors->any())
             <div class="error">{{ $errors->first() }}</div>
@@ -74,6 +96,12 @@
         <div class="hint">
             Demo users: admin@example.com, accountant@example.com, cashier@example.com, customer@example.com. Password: password.
         </div>
+        <div class="auth-links">
+            <a href="{{ route('register') }}">Create account</a>
+            <a href="{{ route('password.request') }}">Forgot password?</a>
+            <a href="{{ route('welcome') }}">Welcome page</a>
+        </div>
     </section>
+    </main>
 </body>
 </html>

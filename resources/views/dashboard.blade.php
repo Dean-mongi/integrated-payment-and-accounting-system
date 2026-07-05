@@ -226,8 +226,8 @@
             <div class="card kpi-card">
                 <div class="kpi-top">
                     <div>
-                        <div class="label">Total Expenses</div>
-                        <div class="kpi-value money">${{ number_format($summary['fees'], 2) }}</div>
+                        <div class="label">Expenses</div>
+                        <div class="kpi-value money">${{ number_format($summary['expenses'] + $summary['fees'], 2) }}</div>
                     </div>
                     <div class="kpi-icon">E</div>
                 </div>
@@ -238,12 +238,12 @@
             <div class="card kpi-card">
                 <div class="kpi-top">
                     <div>
-                        <div class="label">Net Profit</div>
-                        <div class="kpi-value money">${{ number_format($profit, 2) }}</div>
+                        <div class="label">Outstanding Invoices</div>
+                        <div class="kpi-value money">${{ number_format($summary['outstanding_invoices'], 2) }}</div>
                     </div>
                     <div class="kpi-icon">P</div>
                 </div>
-                <div class="trend">+ {{ number_format($profitProgress / 7, 1) }}% from last month</div>
+                <div class="trend">{{ $summary['customers'] }} active customer records</div>
                 <div class="sparkline">@foreach ([8, 12, 15, 19, 17, 26, 31, 25, 29, 37, 42, 48] as $height)<span style="height:{{ $height }}%;"></span>@endforeach</div>
             </div>
         </section>
@@ -288,7 +288,7 @@
                     <div class="legend-list">
                         @foreach ([['Processor Fees', $summary['fees'], '42.0%'], ['Payouts', max($summary['net'] * 0.18, 0), '26.0%'], ['Operations', max($summary['gross'] * 0.08, 0), '19.0%'], ['FX Variance', max($summary['fees'] * 0.12, 0), '8.0%'], ['Other', max($summary['fees'] * 0.07, 0), '5.0%']] as $item)
                             <div class="legend-row">
-                                <span class="legend-name">{{ $item[0] }}</span>
+                            <span class="legend-name">{{ $item[0] }}</span>
                                 <span class="money">${{ number_format($item[1], 2) }}</span>
                                 <span class="tiny">{{ $item[2] }}</span>
                             </div>
@@ -365,6 +365,11 @@
             <div>
                 <h2>Financial Insights</h2>
                 <p class="tiny">Your ledger is organized across income, fees, reconciliation, and currency workflows. Keep monitoring discrepancies and processor fees as volume grows.</p>
+                <div class="toolbar" style="margin-top:12px;">
+                    <a class="link-button" href="{{ route('customers.index') }}">Customers</a>
+                    <a class="link-button" href="{{ route('expenses.index') }}">Expenses</a>
+                    <a class="link-button" href="{{ route('accounting.index') }}">Accounting</a>
+                </div>
             </div>
             <div class="growth-art" aria-hidden="true">
                 @foreach ([18, 24, 30, 42, 58, 78] as $height)

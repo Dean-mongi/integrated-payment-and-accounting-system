@@ -6,7 +6,12 @@
             <h2>{{ $invoice->invoice_no }}</h2>
             <p>{{ $invoice->customer?->name }} - {{ $invoice->customer?->email }}</p>
         </div>
-        <a class="link-button" href="{{ route('invoices.index') }}">All invoices</a>
+        <div class="toolbar">
+            <a class="link-button" href="mailto:{{ $invoice->customer?->email }}?subject={{ rawurlencode('Invoice '.$invoice->invoice_no) }}">Send invoice</a>
+            <a class="link-button" href="https://wa.me/?text={{ rawurlencode('Invoice '.$invoice->invoice_no.' total '.$invoice->currency.' '.number_format($invoice->total, 2)) }}">WhatsApp</a>
+            <button type="button" onclick="window.print()">Download PDF</button>
+            <a class="link-button" href="{{ route('invoices.index') }}">All invoices</a>
+        </div>
     </div>
 
     <section class="cards">
@@ -39,7 +44,7 @@
             <form method="post" action="{{ route('invoice-payments.store', $invoice) }}">
                 @csrf
                 <div class="split">
-                    <div class="field"><label for="payment_method">Method</label><select id="payment_method" name="payment_method"><option value="card">Card</option><option value="mobile_money">Mobile money</option><option value="bank_transfer">Bank transfer</option><option value="paypal">PayPal</option><option value="stripe">Stripe</option></select></div>
+                    <div class="field"><label for="payment_method">Method</label><select id="payment_method" name="payment_method"><option value="mobile_money">Mobile money</option><option value="bank_transfer">Bank transfer</option><option value="cash">Cash</option><option value="card">Card</option><option value="paypal">PayPal</option><option value="stripe">Stripe</option></select></div>
                     <div class="field"><label for="provider">Provider</label><input id="provider" name="provider" value="Stripe"></div>
                 </div>
                 <div class="field"><label for="provider_reference">Provider reference</label><input id="provider_reference" name="provider_reference" placeholder="Optional auto-generated"></div>
