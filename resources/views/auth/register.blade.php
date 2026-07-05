@@ -10,12 +10,13 @@
         .brand { display:flex; gap:12px; align-items:center; margin-bottom:18px; }
         .brand img { width:64px; height:64px; object-fit:contain; background:#fff; border-radius:10px; }
         h1 { margin:0 0 4px; font-size:24px; }
-        p { margin:0; color:#a8b0bd; }
+        p { margin:0; color:#a8b0bd; line-height:1.55; }
         form { display:grid; gap:14px; }
         label { display:grid; gap:7px; font-weight:800; font-size:13px; }
         input { width:100%; box-sizing:border-box; border:1px solid rgba(255,255,255,.18); border-radius:10px; padding:11px; background:rgba(0,0,0,.58); color:#fff; }
         button { border:0; border-radius:10px; padding:12px 14px; background:linear-gradient(135deg, #55bf1a, #0f766e); color:#02140b; font-weight:900; cursor:pointer; }
         .error { margin-bottom:14px; color:#fecaca; font-weight:800; }
+        .hint { color:#a8b0bd; font-size:12px; line-height:1.55; }
         a { color:#86efac; font-weight:800; text-decoration:none; font-size:13px; }
     </style>
 </head>
@@ -32,8 +33,9 @@
             @csrf
             <label>Name<input name="name" value="{{ old('name') }}" required autofocus></label>
             <label>Email<input name="email" type="email" value="{{ old('email') }}" required></label>
-            <label>Password<input name="password" type="password" required></label>
-            <label>Confirm password<input name="password_confirmation" type="password" required></label>
+            <label>Password<input name="password" type="password" autocomplete="new-password" minlength="10" required></label>
+            <p class="hint">Use at least 10 characters with uppercase, lowercase, number, and symbol.</p>
+            <label>Confirm password<input name="password_confirmation" type="password" autocomplete="new-password" minlength="10" required></label>
             <button type="submit">Register</button>
         </form>
         <p style="margin-top:16px;"><a href="{{ route('login') }}">Already have an account?</a></p>
