@@ -10,7 +10,7 @@
             margin:0;
             min-height:100vh;
             font-family:Arial, Helvetica, sans-serif;
-            background:linear-gradient(180deg, rgba(0,0,0,.68), rgba(0,0,0,.9)), url("{{ asset('images/colour-palette.jpeg') }}") center / cover fixed no-repeat;
+            background:linear-gradient(135deg, #071018, #101820);
             color:#f6f7f9;
         }
         .hero {
@@ -28,7 +28,7 @@
         }
         .logo {
             width:min(340px, 82vw);
-            border-radius:18px;
+            border-radius:8px;
             box-shadow:0 24px 70px rgba(0,0,0,.42);
         }
         h1 { margin:0; font-size:clamp(42px, 8vw, 86px); line-height:.95; }
@@ -53,6 +53,9 @@
         @media (max-width: 820px) {
             .wrap { grid-template-columns:1fr; }
             .metrics { grid-template-columns:1fr; }
+            .logo { order:-1; width:min(240px, 72vw); }
+            h1 { font-size:clamp(38px, 14vw, 58px); }
+            p { font-size:16px; }
         }
     </style>
 </head>

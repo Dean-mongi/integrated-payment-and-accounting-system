@@ -14,8 +14,7 @@
             padding:24px 14px;
             font-family:Arial, Helvetica, sans-serif;
             background:
-                linear-gradient(120deg, rgba(0,27,17,.82), rgba(0,0,0,.92)),
-                url("{{ asset('images/colour-palette.jpeg') }}") center / cover fixed no-repeat;
+                linear-gradient(135deg, #071018, #101820);
             color:#f6f7f9;
         }
         .auth-shell {
@@ -24,7 +23,7 @@
             display:grid;
             grid-template-columns:minmax(0, .92fr) minmax(360px, .78fr);
             border:1px solid rgba(255,255,255,.14);
-            border-radius:18px;
+            border-radius:8px;
             overflow:hidden;
             background:rgba(0,0,0,.66);
             box-shadow:0 28px 80px rgba(0,0,0,.52);
@@ -36,7 +35,7 @@
             align-content:space-between;
             gap:28px;
             background:
-                linear-gradient(180deg, rgba(255,255,255,.98), rgba(235,250,240,.94));
+                linear-gradient(180deg, rgba(255,255,255,.98), rgba(239,247,251,.94));
             color:#073b24;
         }
         .brand-top { display:flex; align-items:center; gap:14px; }
@@ -145,6 +144,7 @@
             .metric-grid { grid-template-columns:1fr; }
             .brand-copy h1 { font-size:34px; }
             .form-row, .auth-links { display:grid; justify-content:stretch; }
+            .brand-panel, .login-panel { padding:20px; }
         }
     </style>
 </head>

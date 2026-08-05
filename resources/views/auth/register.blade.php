@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register - MaliHub</title>
     <style>
-        body { margin:0; min-height:100vh; display:grid; place-items:center; font-family:Arial, Helvetica, sans-serif; background:linear-gradient(180deg, rgba(0,0,0,.76), rgba(0,0,0,.9)), url("{{ asset('images/colour-palette.jpeg') }}") center / cover fixed no-repeat; color:#f6f7f9; }
-        .card { width:min(460px, calc(100vw - 32px)); padding:26px; border:1px solid rgba(255,255,255,.14); border-radius:14px; background:rgba(0,0,0,.78); box-shadow:0 22px 60px rgba(0,0,0,.48); }
+        body { margin:0; min-height:100vh; display:grid; place-items:center; padding:16px; font-family:Arial, Helvetica, sans-serif; background:linear-gradient(135deg, #071018, #101820); color:#f6f7f9; }
+        .card { width:min(460px, 100%); padding:26px; border:1px solid rgba(255,255,255,.14); border-radius:8px; background:rgba(7,12,18,.84); box-shadow:0 22px 60px rgba(0,0,0,.38); }
         .brand { display:flex; gap:12px; align-items:center; margin-bottom:18px; }
         .brand img { width:64px; height:64px; object-fit:contain; background:#fff; border-radius:10px; }
         h1 { margin:0 0 4px; font-size:24px; }
@@ -18,6 +18,7 @@
         .error { margin-bottom:14px; color:#fecaca; font-weight:800; }
         .hint { color:#a8b0bd; font-size:12px; line-height:1.55; }
         a { color:#86efac; font-weight:800; text-decoration:none; font-size:13px; }
+        @media (max-width: 520px) { .card { padding:20px; } }
     </style>
 </head>
 <body>
