@@ -4,10 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Integrated Payment Ledger') }}</title>
+    <title>{{ config('app.name', 'MaliHub') }}</title>
     {{-- This app can run from `php artisan serve` without a Node/Vite process. --}}
     <link rel="stylesheet" href="{{ asset('css/ledger.css') }}">
     <script src="{{ asset('js/ledger.js') }}" defer></script>
+    <style>.brand-logo{width:2.5rem;height:2.5rem;object-fit:contain;border-radius:.55rem;background:#fff;padding:.15rem}</style>
 </head>
 <body data-theme="dark">
 <div class="app-shell" data-app-shell>
@@ -15,8 +16,8 @@
     <aside class="sidebar" id="primary-navigation" aria-label="Primary navigation" data-sidebar>
         <div class="sidebar-head">
             <a class="brand" href="{{ route('dashboard') }}">
-                <span class="brand-mark" aria-hidden="true">₿</span>
-                <span><strong>Ledger</strong><small>Integrated payments</small></span>
+                <img class="brand-logo" src="{{ asset('images/malihub-logo.svg') }}" alt="MaliHub logo">
+                <span><strong>MaliHub</strong><small>Your financial hub</small></span>
             </a>
             <button class="icon-button drawer-close" type="button" aria-label="Close navigation" data-drawer-close>×</button>
         </div>
@@ -48,7 +49,7 @@
         <header class="topbar">
             <div class="topbar-title">
                 <button class="icon-button menu-button" type="button" aria-label="Open navigation" aria-controls="primary-navigation" aria-expanded="false" data-drawer-open>☰</button>
-                <div><p class="eyebrow">Integrated Payment Ledger</p><h1>@yield('page-title', 'Financial overview')</h1></div>
+                <div><p class="eyebrow">MaliHub</p><h1>@yield('page-title', 'Financial overview')</h1></div>
             </div>
             <div class="top-actions">
                 <span class="date-chip">{{ now()->format('M j, Y') }}</span>
