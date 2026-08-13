@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Integrated Payment Ledger') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- This app can run from `php artisan serve` without a Node/Vite process. --}}
+    <link rel="stylesheet" href="{{ asset('css/ledger.css') }}">
+    <script src="{{ asset('js/ledger.js') }}" defer></script>
 </head>
 <body data-theme="dark">
 <div class="app-shell" data-app-shell>
