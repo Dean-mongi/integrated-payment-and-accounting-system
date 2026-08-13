@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+    @if (false)
     @php
         $profit = $summary['net'] - $summary['fees'];
         $revenueTarget = max($summary['gross'], 100000);
@@ -383,4 +384,23 @@
             </div>
         </section>
     </div>
+    @endif
+
+    @php
+        $chartDays = $daily->sortBy('day')->values();
+        $maxValue = max((float) $chartDays->max('debit'), (float) $chartDays->max('credit'), 1);
+        $incomePoints = $chartDays->map(fn ($item, $i) => (($chartDays->count() > 1 ? $i / ($chartDays->count() - 1) : .5) * 260).','.((1 - ($item->debit / $maxValue)) * 110 + 8))->implode(' ');
+        $expensePoints = $chartDays->map(fn ($item, $i) => (($chartDays->count() > 1 ? $i / ($chartDays->count() - 1) : .5) * 260).','.((1 - ($item->credit / $maxValue)) * 110 + 8))->implode(' ');
+    @endphp
+    <section class="hero-dashboard">
+        <div class="hero-copy"><p class="section-kicker">{{ now()->format('F Y') }} overview</p><h1>Financial<br>Dashboard</h1><p>Manage your MaliHub accounts, track transactions, and make better financial decisions.</p><a class="primary-action" href="{{ route('ledger') }}">New transaction <span aria-hidden="true">→</span></a></div>
+        <section class="chart-card" aria-labelledby="income-expenses-title"><div class="chart-heading"><h2 id="income-expenses-title">Income vs expenses</h2><span>Last 7 days</span></div><div class="chart-legend"><span><i class="income-dot"></i>Income</span><span><i class="expense-dot"></i>Expenses</span></div>
+            @if($chartDays->isNotEmpty())
+                <svg class="trend-chart" viewBox="0 0 260 135" role="img" aria-label="Income and expense trend for the last seven days"><line x1="0" y1="118" x2="260" y2="118"/><line x1="0" y1="78" x2="260" y2="78"/><line x1="0" y1="38" x2="260" y2="38"/><polyline class="income-line" points="{{ $incomePoints }}"/><polyline class="expense-line" points="{{ $expensePoints }}"/></svg><div class="chart-labels">@foreach($chartDays as $day)<span>{{ \Carbon\Carbon::parse($day->day)->format('D') }}</span>@endforeach</div>
+            @else <x-empty-state title="No trend data yet" message="Post transactions to build your financial trend." /> @endif
+        </section>
+    </section>
+    <section class="finance-kpis" aria-label="Financial totals"><article><span>Total balance</span><strong class="money">${{ number_format($summary['net'], 2) }}</strong></article><article><span>Income</span><strong class="money income-value">${{ number_format($summary['gross'], 2) }}</strong></article><article><span>Expenses</span><strong class="money expense-value">${{ number_format($summary['expenses'] + $summary['fees'], 2) }}</strong></article></section>
+    <section class="dashboard-detail"><section class="history-panel"><div class="section-heading"><div><h2>Transaction History</h2><p>Your most recent payment activity.</p></div><a href="{{ route('ledger') }}">View all</a></div><div class="history-table-wrap"><table class="history-table"><thead><tr><th>Date</th><th>Type</th><th>Account</th><th class="amount">Amount</th></tr></thead><tbody>@forelse($transactions->take(5) as $transaction)<tr><td>{{ $transaction->processed_at->format('M j, Y') }}</td><td><span class="transaction-type {{ $transaction->type === 'payout' ? 'outgoing' : '' }}">{{ $transaction->type === 'payout' ? '↓' : '↗' }} {{ ucfirst($transaction->type) }}</span></td><td>{{ $transaction->invoice?->customer?->name ?? $transaction->provider }}</td><td class="amount money {{ $transaction->type === 'payout' ? 'expense-value' : 'income-value' }}">{{ $transaction->type === 'payout' ? '-' : '+' }}{{ $transaction->currency }} {{ number_format($transaction->net_amount, 2) }}</td></tr>@empty<tr><td colspan="4"><x-empty-state title="No transactions yet" message="Your payment activity will appear here." /></td></tr>@endforelse</tbody></table></div></section>
+        <aside class="accounts-panel"><div class="section-heading"><div><h2>Accounts</h2><p>Current ledger balances.</p></div><a href="{{ route('accounting.index') }}">Manage</a></div><div class="account-list">@forelse($balances->take(5) as $account)<div><span><strong>{{ $account->name }}</strong><small>{{ ucfirst($account->type) }} · {{ $account->code }}</small></span><b class="money">${{ number_format($account->balance, 2) }}</b></div>@empty <x-empty-state title="No accounts" message="Accounts will appear here." /> @endforelse</div></aside></section>
 @endsection
