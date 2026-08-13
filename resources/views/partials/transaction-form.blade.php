@@ -1,57 +1,21 @@
 <form method="post" action="{{ route('transactions.store') }}">
     @csrf
     <div class="split">
-        <div class="field">
-            <label for="{{ $prefix ?? 'transaction' }}_type">Type</label>
-            <select id="{{ $prefix ?? 'transaction' }}_type" name="type">
-                <option value="sale">Sale</option>
-                <option value="renewal">Subscription renewal</option>
-                <option value="payout">Outbound payout</option>
-            </select>
-        </div>
-        <div class="field">
-            <label for="{{ $prefix ?? 'transaction' }}_provider">Processor</label>
-            <select id="{{ $prefix ?? 'transaction' }}_provider" name="provider">
-                <option>Stripe</option>
-                <option>PayPal</option>
-                <option>Flutterwave</option>
-                <option>Manual</option>
-            </select>
-        </div>
+        <x-form-select :id="($prefix ?? 'transaction').'_type'" name="type" label="Type" :value="old('type', 'sale')" :options="['sale' => 'Sale', 'renewal' => 'Subscription renewal', 'payout' => 'Outbound payout']" />
+        <x-form-select :id="($prefix ?? 'transaction').'_provider'" name="provider" label="Processor" :value="old('provider', 'Stripe')" :options="['Stripe' => 'Stripe', 'PayPal' => 'PayPal', 'Flutterwave' => 'Flutterwave', 'Manual' => 'Manual']" />
     </div>
-    <div class="field">
-        <label for="{{ $prefix ?? 'transaction' }}_provider_reference">Processor reference</label>
-        <input id="{{ $prefix ?? 'transaction' }}_provider_reference" name="provider_reference" placeholder="Optional auto-generated">
+    <x-form-input :id="($prefix ?? 'transaction').'_provider_reference'" name="provider_reference" label="Processor reference" :value="old('provider_reference')" placeholder="Optional auto-generated" />
+    <div class="split">
+        <x-form-input :id="($prefix ?? 'transaction').'_gross_amount'" name="gross_amount" label="Gross amount" type="number" step="0.01" value="100.00" required />
+        <x-form-input :id="($prefix ?? 'transaction').'_fee_amount'" name="fee_amount" label="Processor fee" type="number" step="0.01" value="3.20" />
     </div>
     <div class="split">
-        <div class="field">
-            <label for="{{ $prefix ?? 'transaction' }}_gross_amount">Gross amount</label>
-            <input id="{{ $prefix ?? 'transaction' }}_gross_amount" name="gross_amount" type="number" step="0.01" value="100.00">
-        </div>
-        <div class="field">
-            <label for="{{ $prefix ?? 'transaction' }}_fee_amount">Processor fee</label>
-            <input id="{{ $prefix ?? 'transaction' }}_fee_amount" name="fee_amount" type="number" step="0.01" value="3.20">
-        </div>
+        <x-form-input :id="($prefix ?? 'transaction').'_currency'" name="currency" label="Currency" maxlength="3" value="USD" required />
+        <x-form-input :id="($prefix ?? 'transaction').'_exchange_rate'" name="exchange_rate" label="USD rate at transaction time" type="number" step="0.000001" value="1" required />
     </div>
     <div class="split">
-        <div class="field">
-            <label for="{{ $prefix ?? 'transaction' }}_currency">Currency</label>
-            <input id="{{ $prefix ?? 'transaction' }}_currency" name="currency" maxlength="3" value="USD">
-        </div>
-        <div class="field">
-            <label for="{{ $prefix ?? 'transaction' }}_exchange_rate">USD rate at transaction time</label>
-            <input id="{{ $prefix ?? 'transaction' }}_exchange_rate" name="exchange_rate" type="number" step="0.000001" value="1">
-        </div>
+        <x-form-input :id="($prefix ?? 'transaction').'_customer_name'" name="customer_name" label="Customer" value="Acme Stores" />
+        <x-form-input :id="($prefix ?? 'transaction').'_customer_email'" name="customer_email" label="Email" type="email" value="billing@acme.test" />
     </div>
-    <div class="split">
-        <div class="field">
-            <label for="{{ $prefix ?? 'transaction' }}_customer_name">Customer</label>
-            <input id="{{ $prefix ?? 'transaction' }}_customer_name" name="customer_name" value="Acme Stores">
-        </div>
-        <div class="field">
-            <label for="{{ $prefix ?? 'transaction' }}_customer_email">Email</label>
-            <input id="{{ $prefix ?? 'transaction' }}_customer_email" name="customer_email" type="email" value="billing@acme.test">
-        </div>
-    </div>
-    <button type="submit">Post to ledger</button>
+    <x-button>Post to ledger</x-button>
 </form>

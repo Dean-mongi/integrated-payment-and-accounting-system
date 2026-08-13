@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('page-title', 'Ledger')
+
 @section('content')
     <style>
         .ledger-grid { display:grid; grid-template-columns:minmax(280px, 420px) 1fr; gap:18px; align-items:start; }
@@ -27,7 +29,7 @@
 
             <section class="panel">
                 <h2>Account balances</h2>
-                <table>
+                <div class="table-scroll"><table>
                     <thead><tr><th>Code</th><th>Account</th><th>Balance</th></tr></thead>
                     <tbody>
                         @foreach ($balances as $account)
@@ -38,36 +40,36 @@
                             </tr>
                         @endforeach
                     </tbody>
-                </table>
+                </table></div>
             </section>
         </aside>
 
         <section class="stack">
             <div class="panel">
                 <h2>Posted transactions</h2>
-                <table class="responsive-table">
+                <div class="table-scroll"><table class="responsive-table">
                     <thead><tr><th>Reference</th><th>Type</th><th>Customer</th><th>Gross</th><th>Net</th><th>Status</th></tr></thead>
                     <tbody>
                         @forelse ($transactions as $transaction)
                             <tr>
                                 <td>{{ $transaction->provider_reference }}<div class="tiny">{{ $transaction->provider }} at {{ $transaction->processed_at->format('M j, Y H:i') }}</div></td>
-                                <td><span class="pill">{{ $transaction->type }}</span></td>
+                                <td><x-status-badge :status="$transaction->type" /></td>
                                 <td>{{ $transaction->invoice?->customer?->name ?? 'Payout recipient' }}</td>
                                 <td class="money">{{ $transaction->currency }} {{ number_format($transaction->gross_amount, 2) }}</td>
                                 <td class="money">{{ $transaction->currency }} {{ number_format($transaction->net_amount, 2) }}</td>
-                                <td><span class="pill">{{ $transaction->status }}</span></td>
+                                <td><x-status-badge :status="$transaction->status" /></td>
                             </tr>
                         @empty
-                            <tr><td colspan="6">No ledger transactions posted yet.</td></tr>
+                            <tr><td colspan="6"><x-empty-state title="No ledger transactions" message="Post a transaction to create balanced ledger entries." /></td></tr>
                         @endforelse
                     </tbody>
-                </table>
+                </table></div>
                 {{ $transactions->links() }}
             </div>
 
             <div class="panel entry-list">
                 <h2>Recent journal entries</h2>
-                <table>
+                <div class="table-scroll"><table>
                     <thead><tr><th>Account</th><th>Description</th><th>Debit</th><th>Credit</th></tr></thead>
                     <tbody>
                         @forelse ($entries as $entry)
@@ -78,10 +80,10 @@
                                 <td class="money">{{ $entry->currency }} {{ number_format($entry->credit, 2) }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="4">No journal entries yet.</td></tr>
+                            <tr><td colspan="4"><x-empty-state title="No journal entries" message="Journal lines will appear when activity is posted." /></td></tr>
                         @endforelse
                     </tbody>
-                </table>
+                </table></div>
             </div>
         </section>
     </div>
