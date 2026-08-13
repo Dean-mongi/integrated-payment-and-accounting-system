@@ -242,7 +242,9 @@ class DashboardController extends Controller
                 'net' => (float) $items->sum('base_net_amount'),
             ])
             ->values()
-            ->take(12);
+            ->take(12)
+            ->reverse()
+            ->values();
 
         $providerPerformance = $transactions
             ->groupBy('provider')

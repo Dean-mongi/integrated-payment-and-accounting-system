@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('page-title', 'Analytics')
+
 @section('content')
     @php
         $maxMonthly = max((float) $monthly->max('gross'), 1);
@@ -9,7 +11,13 @@
         .analytics-layout { display:grid; gap:16px; }
         .analytics-bars { display:grid; grid-template-columns:repeat(12, minmax(34px, 1fr)); gap:10px; min-height:220px; align-items:end; }
         .analytics-bar-item { display:grid; gap:8px; align-items:end; color:var(--muted); font-size:11px; text-align:center; }
-        .analytics-bar { min-height:18px; border-radius:6px 6px 0 0; background:linear-gradient(180deg, var(--accent), #0f766e); }
+        .analytics-bar-pair { display:flex; align-items:end; justify-content:center; gap:4px; height:190px; }
+        .analytics-bar { width:min(20px, 42%); min-height:4px; border-radius:5px 5px 0 0; background:var(--accent); }
+        .analytics-bar.net { background:#38bdf8; }
+        .chart-key { display:flex; gap:14px; flex-wrap:wrap; margin:0 0 12px; color:var(--muted); font-size:12px; }
+        .chart-key span { display:inline-flex; align-items:center; gap:6px; }
+        .chart-key i { display:inline-block; width:10px; height:10px; border-radius:2px; background:var(--accent); }
+        .chart-key i.net-key { background:#38bdf8; }
         .analytics-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
         .metric-line { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:11px 0; border-bottom:1px solid var(--line); }
         .mix-pill { display:inline-flex; justify-content:center; min-width:58px; padding:5px 8px; border-radius:999px; background:rgba(34,197,94,0.12); color:#bbf7d0; font-weight:900; }
@@ -37,14 +45,18 @@
     <div class="analytics-layout" style="margin-top:16px;">
         <section class="panel">
             <h2>Monthly Payment Volume</h2>
+            <div class="chart-key" aria-label="Chart legend"><span><i aria-hidden="true"></i>Gross volume</span><span><i class="net-key" aria-hidden="true"></i>Net volume after fees</span></div>
             <div class="analytics-bars">
                 @forelse ($monthly as $month)
                     <div class="analytics-bar-item">
-                        <div class="analytics-bar" style="height:{{ max(14, ($month['gross'] / $maxMonthly) * 100) }}%;"></div>
+                        <div class="analytics-bar-pair" title="{{ $month['month'] }}: Gross ${{ number_format($month['gross'], 2) }}, Net ${{ number_format($month['net'], 2) }}">
+                            <div class="analytics-bar" style="height:{{ max(4, ($month['gross'] / $maxMonthly) * 100) }}%;"></div>
+                            <div class="analytics-bar net" style="height:{{ max(4, ($month['net'] / $maxMonthly) * 100) }}%;"></div>
+                        </div>
                         <span>{{ explode(' ', $month['month'])[0] }}</span>
                     </div>
                 @empty
-                    <div class="tiny">No transaction analytics available yet.</div>
+                    <x-empty-state title="No analytics yet" message="Post transactions to see payment volume, fees, and net settlement trends." />
                 @endforelse
             </div>
         </section>
